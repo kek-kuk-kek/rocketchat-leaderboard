@@ -15,8 +15,8 @@
             <div class="flex items-center gap-3 bg-gray-800 p-3 rounded-lg border border-gray-700 shadow-md">
                 <label for="sort-select" class="text-gray-400 text-sm font-medium">Sort By:</label>
                 <select id="sort-select" class="bg-gray-900 border border-gray-600 text-white text-sm rounded-md px-3 py-1 focus:ring-blue-500 outline-none cursor-pointer">
-                    <option value="total">Total Activity</option>
                     <option value="merged" selected>Merged PRs</option>
+                    <option value="total">Total Activity</option>
                     <option value="open_prs">Open PRs</option>
                     <option value="open_issues">Open Issues</option>
                 </select>
@@ -56,10 +56,9 @@
                 const response = await fetch(`./data.json?t=${new Date().getTime()}`);
                 if (!response.ok) throw new Error('Data not found');
                 leaderboardData = await response.json();
-                
+            
                 const initialSorted = sortData(leaderboardData, sortSelect.value);
                 renderTable(initialSorted);
-
                 sortSelect.addEventListener('change', (e) => {
                     const sorted = sortData(leaderboardData, e.target.value);
                     renderTable(sorted);
@@ -74,21 +73,23 @@
         function sortData(data, criteria) {
             return [...data].sort((a, b) => {
                 let valA, valB;
+                
                 if (criteria === 'total') {
                     valA = a.open_prs + a.merged_prs + a.open_issues;
                     valB = b.open_prs + b.merged_prs + b.open_issues;
-                } else {
-                    valA = a[criteria];
-                    valB = b[criteria];
+                } else if (criteria === 'merged') {
+                    valA = a.merged_prs;
+                    valB = b.merged_prs;
+                } else if (criteria === 'open_prs') {
+                    valA = a.open_prs;
+                    valB = b.open_prs;
+                } else if (criteria === 'open_issues') {
+                    valA = a.open_issues;
+                    valB = b.open_issues;
                 }
 
                 if (valB !== valA) return valB - valA;
-                // Tie-breaker 1: Always check Merged PRs if we aren't already sorting by them
                 if (criteria !== 'merged' && b.merged_prs !== a.merged_prs) return b.merged_prs - a.merged_prs;
-                // Tie-breaker 2: Total Activity
-                const totalA = a.open_prs + a.merged_prs + a.open_issues;
-                const totalB = b.open_prs + b.merged_prs + b.open_issues;
-                if (totalB !== totalA) return totalB - totalA;
                 return a.author.toLowerCase().localeCompare(b.author.toLowerCase());
             });
         }
@@ -117,8 +118,8 @@
                     </tr>`;
             });
         }
+
         loadData();
     </script>
 </body>
 </html>
-
