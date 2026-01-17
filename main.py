@@ -57,8 +57,8 @@ def fetch_activity():
     final_list = sorted(
         filtered_stats, 
         key=lambda x: (
-            -(x["open_prs"] + x["merged_prs"] + x["open_issues"]),
             -x["merged_prs"],
+            -(x["open_prs"] + x["merged_prs"] + x["open_issues"]),
             -x["open_prs"],
             -x["open_issues"],
             x["author"].lower()
@@ -70,3 +70,4 @@ def fetch_activity():
 
 if __name__ == "__main__":
     fetch_activity()
+
